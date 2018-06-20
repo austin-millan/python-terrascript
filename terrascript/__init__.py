@@ -195,6 +195,8 @@ class _base(object):
             return 'var.{}'.format(self._name)
         elif self._class == 'resource':
             return '{}.{}'.format(self._type, self._name)
+        elif self._class == 'data':  # for consistency between these two classes
+            return '{}.{}'.format(self._type, self._name)
         else:
             return '{}.{}'.format(self._class, self._name)
 
