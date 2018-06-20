@@ -66,24 +66,16 @@ class Terrascript(object):
         # Make 'data' a list of a single dictionary.
         if item._class == 'data':
             self.config[item._class][0][item._type][item._name] = item._kwargs
-            if item._type not in self.catalog[item._class]:
-                self.catalog[item._class][item._type] = {}
-            self.catalog[item._class][item._type][item.fullname] = item
+            self.catalog[item._class][item.fullname] = item
         elif item._class in THREE_TIER_ITEMS:
             self.config[item._class][item._type][item._name] = item._kwargs
-            if item._type not in self.catalog[item._class]:
-                self.catalog[item._class][item._type] = {}
-            self.catalog[item._class][item._type][item.fullname] = item
+            self.catalog[item._class][item.fullname] = item
         elif item._class in TWO_TIER_ITEMS:
             self.config[item._class][item._name] = item._kwargs
-            if item._type not in self.catalog[item._class]:
-                self.catalog[item._class][item._type] = {}
-            self.catalog[item._class][item._type][item.fullname] = item
+            self.catalog[item._class][item.fullname] = item
         elif item._class in ONE_TIER_ITEMS:
             self.config[item._class] = item._kwargs
-            if item._type not in self.catalog[item._class]:
-                self.catalog[item._class][item._type] = {}
-            self.catalog[item._class][item._type] = item._kwargs
+            self.catalog[item._class][item.fullame] = item._kwargs
         else:
             raise KeyError(item)
 
