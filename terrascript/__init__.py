@@ -57,18 +57,25 @@ class Terrascript(object):
     def __init__(self):
 
         self.config = _Config()
+        self.catalog = {}
+        for i in THREE_TIER_ITEMS + TWO_TIER_ITEMS + ONE_TIER_ITEMS:
+            self.catalog[i] = {}
 
     def __add__(self, item):
         # Work-around for issue 3 as described in https://github.com/hashicorp/terraform/issues/13037:
         # Make 'data' a list of a single dictionary.
         if item._class == 'data':
             self.config[item._class][0][item._type][item._name] = item._kwargs
+            self.catalog[item._class][item.fullname] = item
         elif item._class in THREE_TIER_ITEMS:
             self.config[item._class][item._type][item._name] = item._kwargs
+            self.catalog[item._class][item.fullname] = item
         elif item._class in TWO_TIER_ITEMS:
             self.config[item._class][item._name] = item._kwargs
+            self.catalog[item._class][item.fullname] = item
         elif item._class in ONE_TIER_ITEMS:
             self.config[item._class] = item._kwargs
+            self.catalog[item._class][item.fullame] = item._kwargs
         else:
             raise KeyError(item)
 
@@ -78,6 +85,15 @@ class Terrascript(object):
     def add(self, item):
         self.__add__(item)
         return item
+
+    def get(self, item_type, item_fullname):
+        try:
+            if item_type in (THREE_TIER_ITEMS + TWO_TIER_ITEMS + ONE_TIER_ITEMS):
+                return self.catalog[item_type][item_fullname]
+            else:
+                raise KeyError(item_fullname)
+        except KeyError:
+            return None
 
     def update(self, terrascript2):
         if isinstance(terrascript2, Terrascript):
@@ -105,7 +121,6 @@ class Terrascript(object):
         #
         config = {k: v for k,v in self.config.items() if v}
         return json.dumps(config, indent=INDENT, sort_keys=SORT, default=_json_default)
-
 
     def validate(self, delete=True):
         """Validate a Terraform configuration."""
