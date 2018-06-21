@@ -16,7 +16,7 @@ INDENT = 2
 SORT = True
 """Whether to sort keys when generating JSON."""
 
-DEBUG = False
+DEBUG = True
 """Set to enable some debugging."""
 
 import logging
@@ -133,6 +133,24 @@ class Terrascript(object):
         tmpfile.close()
 
         return proc.returncode == 0
+
+    def get(self, item):
+        if isinstance(str, item):
+            print("Will look for string.")
+        if isinstance(dict, item):
+            print("Will look for dict.")
+        if item._class == 'data':
+            self.config[item._class][0][item._type][item._name] = item._kwargs
+        elif item._class in THREE_TIER_ITEMS:
+            self.config[item._class][item._type][item._name] = item._kwargs
+        elif item._class in TWO_TIER_ITEMS:
+            self.config[item._class][item._name] = item._kwargs
+        elif item._class in ONE_TIER_ITEMS:
+            self.config[item._class] = item._kwargs
+        else:
+            raise KeyError(item)
+
+        return self
 
 
 class _base(object):

@@ -11,6 +11,9 @@ storage_drs_vm_override = vsphere_storage_drs_vm_override
 class vsphere_datacenter(_resource): pass
 datacenter = vsphere_datacenter
 
+class vsphere_compute_cluster(_resource): pass
+compute_cluster= vsphere_compute_cluster
+
 class vsphere_distributed_port_group(_resource): pass
 distributed_port_group = vsphere_distributed_port_group
 
