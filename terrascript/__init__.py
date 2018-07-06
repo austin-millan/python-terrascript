@@ -31,6 +31,25 @@ TWO_TIER_ITEMS = ['variable', 'module', 'output', 'provisioner']
 ONE_TIER_ITEMS = ['terraform']
 
 
+def get_item_tier(item):
+    """
+    Returns the corresponding tier for a given item.
+    :param item:
+    :return: int
+    """
+    if isinstance(item, _base):
+        item = item._class
+    if isinstance(item, str):
+        if item in THREE_TIER_ITEMS:
+            return 3
+        if item in TWO_TIER_ITEMS:
+            return 2
+        if item in ONE_TIER_ITEMS:
+            return 1
+    else:
+        return 0
+
+
 class _Config(dict):
     def __getitem__(self, key):
         try:
@@ -66,34 +85,69 @@ class Terrascript(object):
         # Make 'data' a list of a single dictionary.
         if item._class == 'data':
             self.config[item._class][0][item._type][item._name] = item._kwargs
-            self.catalog[item._class][item.fullname] = item
+            self.catalog[item._class][item._type][item._name] = item
         elif item._class in THREE_TIER_ITEMS:
             self.config[item._class][item._type][item._name] = item._kwargs
-            self.catalog[item._class][item.fullname] = item
+            try:
+                self.catalog[item._class][item._type][item._name] = item
+            except:
+                self.catalog[item._class][item._type] = item._name
+                self.catalog[item._class][item._type][item._name] = item
         elif item._class in TWO_TIER_ITEMS:
             self.config[item._class][item._name] = item._kwargs
-            self.catalog[item._class][item.fullname] = item
+            self.catalog[item._class][item._name] = item
         elif item._class in ONE_TIER_ITEMS:
             self.config[item._class] = item._kwargs
-            self.catalog[item._class][item.fullame] = item._kwargs
+            self.catalog[item._class] = item
         else:
             raise KeyError(item)
 
         return self
 
 
+        # if item._class == 'data':
+        #     self.config[item._class][0][item._type][item._name] = item._kwargs
+        #     self.catalog[item._class][item.fullname] = item
+        # elif item._class in THREE_TIER_ITEMS:
+        #     self.config[item._class][item._type][item._name] = item._kwargs
+        #     self.catalog[item._class][item.fullname] = item
+        # elif item._class in TWO_TIER_ITEMS:
+        #     self.config[item._class][item._name] = item._kwargs
+        #     self.catalog[item._class][item.fullname] = item
+        # elif item._class in ONE_TIER_ITEMS:
+        #     self.config[item._class] = item._kwargs
+        #     self.catalog[item._class][item.fullame] = item._kwargs
+        # else:
+        #     raise KeyError(item)
+        #
+        # return self
+
     def add(self, item):
         self.__add__(item)
         return item
 
-    def get(self, item_type, item_fullname):
+    def get(self, item_class, item_type, item_name):
         try:
-            if item_type in (THREE_TIER_ITEMS + TWO_TIER_ITEMS + ONE_TIER_ITEMS):
-                return self.catalog[item_type][item_fullname]
+            if item_class in (THREE_TIER_ITEMS + TWO_TIER_ITEMS + ONE_TIER_ITEMS):
+                if item_class == 'data':
+                    return self.catalog[item_class][item_type][item_name]['reference']
+                elif item_class in THREE_TIER_ITEMS:
+                    return self.catalog[item_class][item_type][item_name]['reference']
+                elif item_class in TWO_TIER_ITEMS:
+                    return self.catalog[item_class][item_name]['reference']
+                elif item_class in ONE_TIER_ITEMS:
+                    return self.catalog[item_class]['reference']
             else:
-                raise KeyError(item_fullname)
+                raise KeyError(item_name)
         except KeyError:
             return None
+        # try:
+        #     if item_type in (THREE_TIER_ITEMS + TWO_TIER_ITEMS + ONE_TIER_ITEMS):
+        #         return self.catalog[item_type][item_fullname]
+        #     else:
+        #         raise KeyError(item_fullname)
+        # except KeyError:
+        #     return None
 
     def update(self, terrascript2):
         if isinstance(terrascript2, Terrascript):
@@ -148,25 +202,6 @@ class Terrascript(object):
         tmpfile.close()
 
         return proc.returncode == 0
-
-    def get(self, item):
-        if isinstance(str, item):
-            print("Will look for string.")
-        if isinstance(dict, item):
-            print("Will look for dict.")
-        if item._class == 'data':
-            self.config[item._class][0][item._type][item._name] = item._kwargs
-        elif item._class in THREE_TIER_ITEMS:
-            self.config[item._class][item._type][item._name] = item._kwargs
-        elif item._class in TWO_TIER_ITEMS:
-            self.config[item._class][item._name] = item._kwargs
-        elif item._class in ONE_TIER_ITEMS:
-            self.config[item._class] = item._kwargs
-        else:
-            raise KeyError(item)
-
-        return self
-
 
 class _base(object):
     _class = None
