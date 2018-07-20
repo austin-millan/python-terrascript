@@ -120,7 +120,7 @@ class Terrascript(object):
         return item
 
     def get(self, item_class, item_type, item_name):
-        try:
+        if item_class:
             if item_class in (THREE_TIER_ITEMS + TWO_TIER_ITEMS + ONE_TIER_ITEMS):
                 if item_class == 'data':
                     return self.catalog[item_class][0][item_type][item_name]
@@ -132,8 +132,23 @@ class Terrascript(object):
                     return self.catalog[item_class]
             else:
                 raise KeyError(item_name)
-        except KeyError:
-            return None
+        elif not item_class:
+            if item_type:  # should return resources && data sources of a given item._type as a dictionary
+                to_return = defaultdict(dict)
+                for item_tier in THREE_TIER_ITEMS:
+                    if item_tier == 'data':
+                        if self.catalog[item_tier][0].get(item_type):
+                            #to_return.update({item_tier: self.catalog[item_tier][0][item_type]})
+                            to_return[item_tier] = self.catalog[item_tier][0][item_type]
+                    else:
+                        if self.catalog[item_tier].get(item_type):
+                            #to_return.update({item_tier: self.catalog[item_tier][item_type]})
+                            to_return[item_tier] = self.catalog[item_tier][item_type]
+                for item_tier in TWO_TIER_ITEMS:
+                    if self.catalog[item_tier].get(item_type):
+                        #to_return.update({item_tier: self.catalog[item_tier][item_type]})
+                        to_return[item_tier] = self.catalog[item_tier][item_type]
+                return to_return
 
     def update(self, terrascript2):
         if isinstance(terrascript2, Terrascript):
