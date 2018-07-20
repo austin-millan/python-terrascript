@@ -138,15 +138,12 @@ class Terrascript(object):
                 for item_tier in THREE_TIER_ITEMS:
                     if item_tier == 'data':
                         if self.catalog[item_tier][0].get(item_type):
-                            #to_return.update({item_tier: self.catalog[item_tier][0][item_type]})
                             to_return[item_tier] = self.catalog[item_tier][0][item_type]
                     else:
                         if self.catalog[item_tier].get(item_type):
-                            #to_return.update({item_tier: self.catalog[item_tier][item_type]})
                             to_return[item_tier] = self.catalog[item_tier][item_type]
                 for item_tier in TWO_TIER_ITEMS:
                     if self.catalog[item_tier].get(item_type):
-                        #to_return.update({item_tier: self.catalog[item_tier][item_type]})
                         to_return[item_tier] = self.catalog[item_tier][item_type]
                 return to_return
 
